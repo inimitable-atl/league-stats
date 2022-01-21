@@ -1,0 +1,24 @@
+# TODO: USE SQL LITE!!!!!
+
+users:
+  - name: Seth
+    summoners:
+      - HeavensVanguard
+  - name: Champagne
+    summoners:
+      - RAINChampagne
+  - name: Andrew
+    summoners:
+      - damadbagginj3w
+      - feedthenafkff15
+      - Creamy Vibes
+  - name: Damon
+    summoners:
+      - "Tugg Speedman"
+      - DayMuhn
+  - name: Nick
+    summoners:
+      - "Squirts Bubbles"
+      - OctoFreshMom
+      - "Sultry Vibes"
+      - Sommazz
