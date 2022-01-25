@@ -21,7 +21,7 @@ public class MatchService {
     /**
      * @return Array of Match Ids
      */
-    public CompletableFuture<String[]> getMatchHistoryBySummoner(SummonerDTO summonerDTO) {
+    public CompletableFuture<String[]> getMatchHistory(SummonerDTO summonerDTO) {
         String url = RegionHost.AMERICAS.getUrl() + BASEPATH + "/by-puuid/" + summonerDTO.puuid() + "/ids";
         HttpRequest request = RiotClient.baseRequestBuilder
                 .uri(URI.create(url))

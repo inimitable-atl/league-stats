@@ -8,7 +8,8 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import reactor.core.publisher.Mono;
-import reports.Reporter;
+
+import reports.SummonerReport;
 
 import java.util.Optional;
 
@@ -31,10 +32,23 @@ public class Bot {
             Mono<Void> handlePingCommand = gateway.on(MessageCreateEvent.class, event -> {
                 Message message = event.getMessage();
                 String nickName = getNickName(event);
-                if (message.getContent().equalsIgnoreCase("!friend-stats")) {
+                if (message.getContent().equalsIgnoreCase("!league-stats")) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("```");
-                    sb.append(Reporter.report(new String[]{"week", "1", nickName}));
+                    SummonerReport summonerReport = null;
+                    try {
+                        String SUMMONER = "HeavensVanguard";
+                        summonerReport = new SummonerReport(SUMMONER);
+                        summonerReport.loadMatchHistory(); // TODO: I'm BLOCKING!
+                        sb.append(SUMMONER)
+                                .append("'s win rate: ")
+                                .append(summonerReport.getWinRate());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        sb.append("An error has occurred. Please report to an admin.");
+                    }
+
+//                    sb.append(Reporter.report(new String[]{"week", "1", nickName}));
                     sb.append("```");
                     message.getChannel();
                     return message

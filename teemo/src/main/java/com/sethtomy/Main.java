@@ -23,7 +23,7 @@ public class Main {
                 .get();
 
         String[] matchIds = matchService
-                .getMatchHistoryBySummoner(summonerDTO)
+                .getMatchHistory(summonerDTO)
                 .get();
 
         List<CompletableFuture<MatchDTO>> matchFutures = new ArrayList<>();

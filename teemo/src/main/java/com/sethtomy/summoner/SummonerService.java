@@ -20,12 +20,14 @@ public class SummonerService {
         HttpRequest request = RiotClient.baseRequestBuilder
                 .uri(URI.create(url))
                 .build();
-        return RiotClient.sendRequest(request)
+        return RiotClient
+                .sendRequest(request)
                 .thenApply(HttpResponse::body)
                 .thenApply(body -> {
                     try {
                         return RiotClient.objectMapper.readValue(body, SummonerDTO.class);
                     } catch (JsonProcessingException e) {
+                        System.out.println(e.getMessage());
                         e.printStackTrace();
                     }
                     return null;

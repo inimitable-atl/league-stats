@@ -18,7 +18,7 @@ public class RiotClient {
 
     public static final HttpRequest.Builder baseRequestBuilder = HttpRequest.newBuilder()
             .timeout(Duration.ofMinutes(2))
-            .header("X-Riot-Token", "");
+            .header("X-Riot-Token", System.getenv("RIOT_TOKEN"));
 
     public static ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
