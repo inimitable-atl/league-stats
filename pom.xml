@@ -5,25 +5,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sethtomy</groupId>
-    <artifactId>teemo</artifactId>
+    <artifactId>league-stats-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <properties>
+        <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <lombok.version>1.18.22</lombok.version>
+        <org.mapstruct.version>1.5.0.Beta2</org.mapstruct.version>
+        <spring.boot.version>2.6.3</spring.boot.version>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.13.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>31.0.1-jre</version>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>reports</module>
+        <module>teemo</module>
+        <module>model</module>
+        <module>spring-boot-starter-teemo</module>
+        <module>discord-bot</module>
+    </modules>
 
 </project>

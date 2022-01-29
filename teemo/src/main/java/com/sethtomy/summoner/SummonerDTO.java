@@ -8,4 +8,4 @@ public record SummonerDTO(
         String id,
         String puuid,
         Long summonerLevel
-) { }
+){}

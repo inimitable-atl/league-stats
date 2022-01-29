@@ -1,10 +1,10 @@
 package com.sethtomy;
 
-import com.sethtomy.match.MatchService;
+import com.sethtomy.match.MatchAPI;
 import com.sethtomy.match.dto.MatchDTO;
 import com.sethtomy.match.dto.ParticipantDTO;
 import com.sethtomy.summoner.SummonerDTO;
-import com.sethtomy.summoner.SummonerService;
+import com.sethtomy.summoner.SummonerAPI;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,19 +16,19 @@ import java.util.stream.Collectors;
 public class Main {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-        SummonerService summonerService = new SummonerService();
-        MatchService matchService = new MatchService();
-        SummonerDTO summonerDTO = summonerService
+        SummonerAPI summonerAPI = new SummonerAPI();
+        MatchAPI matchAPI = new MatchAPI();
+        SummonerDTO summonerDTO = summonerAPI
                 .getSummonerByName("HeavensVanguard")
                 .get();
 
-        String[] matchIds = matchService
+        List<String> matchIds = matchAPI
                 .getMatchHistory(summonerDTO)
                 .get();
 
         List<CompletableFuture<MatchDTO>> matchFutures = new ArrayList<>();
         for (String matchId : matchIds) {
-            CompletableFuture<MatchDTO> matchFuture = matchService
+            CompletableFuture<MatchDTO> matchFuture = matchAPI
                     .getMatchById(matchId)
                     .thenApply(matchDTO -> {
                         System.out.println(matchDTO);
