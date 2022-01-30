@@ -25,6 +25,8 @@ jobs:
         
     - name: Maven Cache
       uses: skjolber/maven-cache-github-action@v1.1
+      with:
+        step: save
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
