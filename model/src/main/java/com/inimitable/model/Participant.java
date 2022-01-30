@@ -6,6 +6,8 @@ import lombok.Getter;
 @Getter
 @Builder(toBuilder = true)
 public class Participant {
+    private final String puuid;
+
     private final int assists;
     private final int baronKills;
     private final int bountyLevel;
@@ -63,7 +65,6 @@ public class Participant {
     private final int physicalDamageDealtToChampions;
     private final int physicalDamagedTaken;
     private final int profileIcon;
-    private final String puuid;
     private final int quadraKills;
     private final String riotIdName;
     private final String RiotIdTagline;
