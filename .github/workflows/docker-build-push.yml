@@ -36,9 +36,13 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+    - name: Change to discord-bot directory
+      run: |
+        cd discord-bot
 
     - name: Build and push Docker images
-      uses: docker/build-push-action@v2.8.0
+      uses: docker/build-push-action@v2.9.0
       with:
         push: true
         file: ./discord-bot/Dockerfile
