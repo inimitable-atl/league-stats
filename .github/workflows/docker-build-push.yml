@@ -39,6 +39,7 @@ jobs:
     - name: Build and push Docker images
       uses: docker/build-push-action@v2.9.0
       with:
+        context: .
         push: true
         file: ./discord-bot/Dockerfile
         tags: league-stats/discord-bot:latest
