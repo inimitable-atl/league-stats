@@ -9,10 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-
+  build-maven:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
 
@@ -36,14 +34,17 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-        
-    - name: Change to discord-bot directory
-      run: |
-        cd discord-bot
+  
+  build-docker:
+    runs-on: ubuntu-latest
+    defaults:
+     run:
+       working-directory: ./discord-bot
+    steps:
 
     - name: Build and push Docker images
       uses: docker/build-push-action@v2.9.0
       with:
         push: true
-        file: ./discord-bot/Dockerfile
+        file: ./Dockerfile
         tags: league-stats/discord-bot:latest
