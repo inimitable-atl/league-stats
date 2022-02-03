@@ -42,6 +42,6 @@ jobs:
         context: .
         push: true
         file: ./discord-bot/Dockerfile
-        tags: league-stats/discord-bot:latest
+        tags: kevincmanning/discord-bot:latest
     
 
