@@ -52,4 +52,4 @@ jobs:
         remote_host: root@rsc.world
         ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
         ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-        args: stack deploy --compose-file docker-compose.yaml
+        args: stack deploy --compose-file docker-compose.yaml league-stats
