@@ -44,13 +44,15 @@ jobs:
         file: ./discord-bot/Dockerfile
         tags: kevincmanning/discord-bot:latest
             
-    - name: docker-swarm-deploy
-      # You may pin to the exact commit or the version.
-      # uses: sagebind/docker-swarm-deploy-action@f2db4b23a5be98bb8db6e11f12437652ebeb2f71
-      uses: sagebind/docker-swarm-deploy-action@v2
+    - name: Deploy to Docker swarm
+      uses: wshihadeh/docker-deployment-action@v1
       with:
-        context: .
-        remote_host: root@rsc.world
-        ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
-        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-        args: stack deploy --compose-file docker-compose.yaml league-stats
+        remote_docker_host: ${{ secrets.DEPLOY_HOST}}
+        ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
+        ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
+        deployment_mode: docker-swarm
+        copy_stack_file: true
+        stack_file_name: docker-compose.yaml
+        keep_files: 5
+        args: league-stats
+        pull_images_first: true
