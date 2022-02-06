@@ -44,4 +44,35 @@ jobs:
         file: ./discord-bot/Dockerfile
         tags: kevincmanning/discord-bot:latest
     
-
+    - name: Docker remote pull
+      uses: TapTap21/docker-remote-deployment-action@v1.0
+      with:
+        remote_docker_host: root@rsc.world
+        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        stack_file_name: docker-compose.yml
+        docker_login_password: ${{ secrets.DOCKERHUB_TOKEN }}
+        docker_login_user: ${{ secrets.DOCKERHUB_USERNAME }}
+        args: pull
+            
+    - name: Docker remote down
+      uses: TapTap21/docker-remote-deployment-action@v1.0
+      with:
+        remote_docker_host: root@rsc.world
+        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        stack_file_name: docker-compose.yml
+        docker_login_password: ${{ secrets.DOCKERHUB_TOKEN }}
+        docker_login_user: ${{ secrets.DOCKERHUB_USERNAME }}
+        args: down
+            
+    - name: Docker remote up
+      uses: TapTap21/docker-remote-deployment-action@v1.0
+      with:
+        remote_docker_host: root@rsc.world
+        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        stack_file_name: docker-compose.yml
+        docker_login_password: ${{ secrets.DOCKERHUB_TOKEN }}
+        docker_login_user: ${{ secrets.DOCKERHUB_USERNAME }}
+        args: -p myapp up -d
