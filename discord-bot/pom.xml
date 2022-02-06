@@ -36,6 +36,11 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.github.rozidan</groupId>
+            <artifactId>docker-secret-spring-boot-starter</artifactId>
+            <version>1.0.1</version>
+        </dependency>
 
         <dependency>
             <groupId>com.discord4j</groupId>
