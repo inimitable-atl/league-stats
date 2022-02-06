@@ -1,3 +1,4 @@
+version: "3.9"
 services:
   discord:
     image: kevincmanning/discord-bot
@@ -7,3 +8,9 @@ services:
     secrets:
       - discord_key
       - riot_token
+
+secrets:
+  discord_key:
+    external: true
+  riot_token:
+    external: true
