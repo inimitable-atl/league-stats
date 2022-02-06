@@ -1,3 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.inimitable.report.config.ReportsAutoConfiguration\
+com.inimitable.report.config.ReportsAutoConfiguration,\
 com.inimitable.teemo.config.TeemoAutoConfiguration

@@ -1,15 +1,15 @@
+version: "3.9"
 services:
   discord:
     image: kevincmanning/discord-bot
-    environment:
-      DISCORD_KEY: /run/secrets/discord_key
-      RIOT_TOKEN: /run/secrets/riot_token
     secrets:
-      - discord_key
-      - riot_token
+      - source: discord_key
+        target: spring.discord.key
+      - source: teemo_api_key
+        target: spring.teemo.api.key
 
 secrets:
   discord_key:
     external: true
-  riot_token:
+  teemo_api_key:
     external: true
