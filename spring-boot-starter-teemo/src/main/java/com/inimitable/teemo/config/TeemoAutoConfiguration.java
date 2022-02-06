@@ -20,19 +20,19 @@ public class TeemoAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RiotClient riotClient() {
-        return new RiotClient(configuration().getApiKey());
+    public RiotClient riotClient(TeemoConfiguration configuration) {
+        return new RiotClient(configuration.getApiKey());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public MatchAPI matchService() {
-        return new MatchAPI(riotClient());
+    public MatchAPI matchService(RiotClient riotClient) {
+        return new MatchAPI(riotClient);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public SummonerAPI summonerService() {
-        return new SummonerAPI(riotClient());
+    public SummonerAPI summonerService(RiotClient riotClient) {
+        return new SummonerAPI(riotClient);
     }
 }
