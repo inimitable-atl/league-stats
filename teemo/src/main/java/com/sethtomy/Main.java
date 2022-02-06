@@ -1,5 +1,6 @@
 package com.sethtomy;
 
+import com.sethtomy.infra.RiotClient;
 import com.sethtomy.match.MatchAPI;
 import com.sethtomy.match.dto.MatchDTO;
 import com.sethtomy.match.dto.ParticipantDTO;
@@ -16,8 +17,9 @@ import java.util.stream.Collectors;
 public class Main {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-        SummonerAPI summonerAPI = new SummonerAPI();
-        MatchAPI matchAPI = new MatchAPI();
+        RiotClient riotClient = new RiotClient(System.getenv("RIOT_TOKEN"));
+        SummonerAPI summonerAPI = new SummonerAPI(riotClient);
+        MatchAPI matchAPI = new MatchAPI(riotClient);
         SummonerDTO summonerDTO = summonerAPI
                 .getSummonerByName("HeavensVanguard")
                 .get();

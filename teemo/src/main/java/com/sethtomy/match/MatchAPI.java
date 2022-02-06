@@ -16,8 +16,10 @@ import java.util.concurrent.CompletableFuture;
 public class MatchAPI {
 
     private final String BASEPATH = "/lol/match/v5/matches";
+    private final RiotClient riotClient;
 
-    public MatchAPI() {
+    public MatchAPI(RiotClient riotClient) {
+        this.riotClient = riotClient;
     }
 
     /**
@@ -25,10 +27,10 @@ public class MatchAPI {
      */
     public CompletableFuture<List<String>> getMatchHistory(SummonerDTO summonerDTO) {
         String url = RegionHost.AMERICAS.getUrl() + BASEPATH + "/by-puuid/" + summonerDTO.puuid() + "/ids";
-        HttpRequest request = RiotClient.baseRequestBuilder
+        HttpRequest request = riotClient.baseRequestBuilder
                 .uri(URI.create(url))
                 .build();
-        return RiotClient.sendRequest(request)
+        return riotClient.sendRequest(request)
                 .thenApply(HttpResponse::body)
                 .thenApply(body -> {
                     try {
@@ -43,10 +45,10 @@ public class MatchAPI {
 
     public CompletableFuture<MatchDTO> getMatchById(String matchId) {
         String url = RegionHost.AMERICAS.getUrl() + BASEPATH + "/" + matchId;
-        HttpRequest request = RiotClient.baseRequestBuilder
+        HttpRequest request = riotClient.baseRequestBuilder
                 .uri(URI.create(url))
                 .build();
-        return RiotClient.sendRequest(request)
+        return riotClient.sendRequest(request)
                 .thenApply(stringHttpResponse -> {
                     System.out.println(stringHttpResponse.statusCode());
                     return stringHttpResponse;

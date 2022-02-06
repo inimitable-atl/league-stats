@@ -12,15 +12,18 @@ import java.util.concurrent.CompletableFuture;
 public class SummonerAPI {
 
     private final String BASEPATH = "/lol/summoner/v4/summoners";
+    private final RiotClient riotClient;
 
-    public SummonerAPI() {}
+    public SummonerAPI(RiotClient riotClient) {
+        this.riotClient = riotClient;
+    }
 
     public CompletableFuture<SummonerDTO> getSummonerByName(String summonerName) {
         String url = PlatformHost.NA1.getUrl() + BASEPATH + "/by-name/" + summonerName;
-        HttpRequest request = RiotClient.baseRequestBuilder
+        HttpRequest request = riotClient.baseRequestBuilder
                 .uri(URI.create(url))
                 .build();
-        return RiotClient
+        return riotClient
                 .sendRequest(request)
                 .thenApply(HttpResponse::body)
                 .thenApply(body -> {
