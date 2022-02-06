@@ -1,9 +1,10 @@
 package com.inimitable.report.admin;
 
-import com.inimitable.model.SummonerGroup;
+import com.inimitable.model.Summoner;
+import reactor.core.publisher.Flux;
 
 import java.util.UUID;
 
 public interface UserService {
-    SummonerGroup getSummonerGroup(String username, UUID summonerGroupId);
+    Flux<Summoner> getSummonersInGroup(String username, UUID summonerGroupId);
 }

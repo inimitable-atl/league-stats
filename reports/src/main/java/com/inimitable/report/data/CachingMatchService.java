@@ -7,13 +7,13 @@ import com.inimitable.report.data.cache.AbstractInMemoryCache;
 import com.inimitable.report.data.cache.MatchInMemoryCache;
 import com.inimitable.report.data.cache.RetrievalResult;
 import com.sethtomy.match.MatchAPI;
-import com.sethtomy.match.dto.MatchDTO;
 import com.sethtomy.summoner.SummonerAPI;
 import com.sethtomy.summoner.SummonerDTO;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
@@ -49,30 +49,36 @@ public class CachingMatchService implements MatchService {
     @Override
     public Match get(String matchId) {
         return get(Collections.singletonList(matchId))
-                .stream()
+                .toStream()
                 .findFirst()
                 .orElse(null);
     }
 
     @Override
-    public Collection<Match> get(Collection<String> matchIds) {
-        RetrievalResult<String, Match> retrievalResult = cache.get(matchIds);
-        if (retrievalResult.getHits().size() == matchIds.size()) {
-            return retrievalResult.getHits();
+    public Flux<Match> get(Collection<String> matchIds) {
+        if (matchIds == null || matchIds.size() == 0) {
+            return Flux.empty();
         }
 
-        Collection<Match> result = new ArrayList<>(retrievalResult.getHits());
-        matchIds.forEach(matchId -> {
-            CompletableFuture<MatchDTO> matchById = api.getMatchById(matchId);
-            try {
-                MatchDTO matchDTO = matchById.get();
-                Match match = matchMapper.fromDTO(matchDTO);
-                cache.put(match);
-                result.add(match);
-            } catch (Exception exception) {
-                log.warn("Error encountered while fetching matchId {}", matchId, exception);
-            }
-        });
-        return result;
+        RetrievalResult<String, Match> retrievalResult = cache.get(matchIds);
+        Flux<Match> result = Flux.fromIterable(retrievalResult.getHits());
+        if (retrievalResult.getHits().size() == matchIds.size()) {
+            return result;
+        }
+
+        try {
+            return Flux.concat(
+                    result,
+                    Flux.fromIterable(retrievalResult.getMisses())
+                            .map(api::getMatchById)
+                            .flatMap(Mono::fromFuture)
+                            .map(matchMapper::fromDTO)
+                            .doOnNext(cache::put)
+            );
+        } catch (Exception exception) {
+            log.warn("Error encountered while fetching matchIds {}", String.join(",", matchIds), exception);
+        }
+
+        return Flux.empty();
     }
 }

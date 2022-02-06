@@ -10,14 +10,19 @@ import com.inimitable.report.admin.UserService;
 import com.inimitable.report.data.MatchService;
 import com.inimitable.report.filter.ReportContext;
 import com.inimitable.report.model.SummonerReport;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.tuple.Pair;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.util.Collection;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
+@Log4j2
 public class SummonerReportGenerator implements ReportGenerator<SummonerReport> {
 
     private final MatchService matchService;
@@ -33,17 +38,17 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
         ReportResult.ReportResultBuilder<SummonerReport> result = ReportResult.builder();
         ReportContext context = request.getReportContext();
 
-        SummonerGroup group = userService.getSummonerGroup(context.getRequester(), context.getSummonerGroupId());
+        Flux<Summoner> summoners = userService.getSummonersInGroup(context.getRequester(), context.getSummonerGroupId());
         Collection<Pair<Summoner, Match>> matches =
-                group.getSummoners()
-                        .stream()
+                summoners
                         .map(summoner -> Pair.of(summoner, matchService.getMatchHistory(summoner)))
-                        .flatMap((Function<Pair<Summoner, Collection<String>>, Stream<Pair<Summoner, Match>>>) pair -> {
-                            Summoner summoner = pair.getKey();
-                            Collection<Match> match = matchService.get(pair.getValue());
-                            return match.stream()
-                                    .map(val -> Pair.of(summoner, val));
-                        })
+                        .flatMap((Function<Pair<Summoner, Collection<String>>, Publisher<Pair<Summoner, Match>>>) pair -> {
+                                    Summoner summoner = pair.getKey();
+                                    return matchService.get(pair.getValue())
+                                            .map(val -> Pair.of(summoner, val));
+                                }
+                        )
+                        .toStream()
                         .toList();
 
         int wins = 0;
@@ -54,10 +59,11 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
             Match match = summonerMatch.getRight();
             Participant primaryParticipant = match.getParticipants()
                     .stream()
-                    .filter(participant -> participant.getSummonerName().equals(summoner.getName()))
+                    .filter(participant -> participant.getPuuid().equals(summoner.getPuuid()))
                     .findFirst()
                     .orElse(null);
             if (primaryParticipant != null) {
+                log.info("{}: {}", primaryParticipant.getSummonerName(), primaryParticipant.isWin());
                 // Found participant, let's aggregate
                 if (primaryParticipant.isWin()) {
                     wins++;
@@ -67,7 +73,7 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
                 timePlayedSeconds += primaryParticipant.getTimePlayed();
             }
         }
-        double winRate = 1.0D * wins / losses;
+        double winRate = 1.0D * wins / (wins + losses);
 
         SummonerReport.SummonerReportBuilder<?, ?> builder = SummonerReport.builder();
         builder.wins(wins);

@@ -2,7 +2,8 @@ package com.sethtomy.infra;
 
 public enum RegionHost implements TargetHost {
 
-    AMERICAS("https://americas.api.riotgames.com");
+    AMERICAS("https://americas.api.riotgames.com"),
+    ASIA("https://asia.api.riotgames.com");
 
     private final String url;
 

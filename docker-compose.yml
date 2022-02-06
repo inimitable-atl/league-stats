@@ -6,7 +6,7 @@ services:
       - source: discord_key
         target: spring.discord.key
       - source: teemo_api_key
-        target: spring.teemo.api.key
+        target: spring.teemo.api-key
 
 secrets:
   discord_key:

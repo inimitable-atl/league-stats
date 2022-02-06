@@ -13,15 +13,14 @@ import org.springframework.context.annotation.Configuration;
 public class TeemoAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean
     public TeemoConfiguration configuration() {
         return new TeemoConfiguration();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public RiotClient riotClient(TeemoConfiguration configuration) {
-        return new RiotClient(configuration.getApiKey());
+    public RiotClient riotClient() {
+        return new RiotClient(configuration().getApiKey());
     }
 
     @Bean

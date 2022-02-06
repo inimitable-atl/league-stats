@@ -2,6 +2,7 @@ package com.inimitable.report.data;
 
 import com.inimitable.model.Match;
 import com.inimitable.model.Summoner;
+import reactor.core.publisher.Flux;
 
 import java.util.Collection;
 
@@ -10,5 +11,5 @@ public interface MatchService {
 
     Match get(String matchId);
 
-    Collection<Match> get(Collection<String> matchIds);
+    Flux<Match> get(Collection<String> matchIds);
 }
