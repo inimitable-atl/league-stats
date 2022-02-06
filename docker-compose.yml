@@ -1,0 +1,9 @@
+services:
+  discord:
+    image: kevincmanning/discord-bot
+    environment:
+      DISCORD_KEY: /run/secrets/discord_key
+      RIOT_TOKEN: /run/secrets/riot_token
+    secrets:
+      - discord_key
+      - riot_token
