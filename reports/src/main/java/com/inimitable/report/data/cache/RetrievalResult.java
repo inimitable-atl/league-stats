@@ -3,14 +3,13 @@ package com.inimitable.report.data.cache;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
+import reactor.core.publisher.Flux;
 
 import java.util.Collection;
 
 @Getter
-@Builder(toBuilder = true)
+@Builder
 public class RetrievalResult<K, V> {
-    @Singular
-    private final Collection<V> hits;
-    @Singular
-    private final Collection<K> misses;
+    private final Flux<V> hits;
+    private final Flux<K> misses;
 }

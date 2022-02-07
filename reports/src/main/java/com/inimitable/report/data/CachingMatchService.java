@@ -61,15 +61,10 @@ public class CachingMatchService implements MatchService {
         }
 
         RetrievalResult<String, Match> retrievalResult = cache.get(matchIds);
-        Flux<Match> result = Flux.fromIterable(retrievalResult.getHits());
-        if (retrievalResult.getHits().size() == matchIds.size()) {
-            return result;
-        }
-
         try {
             return Flux.concat(
-                    result,
-                    Flux.fromIterable(retrievalResult.getMisses())
+                    retrievalResult.getHits(),
+                    retrievalResult.getMisses()
                             .map(api::getMatchById)
                             .flatMap(Mono::fromFuture)
                             .map(matchMapper::fromDTO)

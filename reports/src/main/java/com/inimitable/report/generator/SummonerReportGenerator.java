@@ -3,7 +3,6 @@ package com.inimitable.report.generator;
 import com.inimitable.model.Match;
 import com.inimitable.model.Participant;
 import com.inimitable.model.Summoner;
-import com.inimitable.model.SummonerGroup;
 import com.inimitable.report.ReportRequest;
 import com.inimitable.report.ReportResult;
 import com.inimitable.report.admin.UserService;
@@ -18,8 +17,6 @@ import reactor.core.publisher.Flux;
 
 import java.util.Collection;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 @Log4j2
@@ -53,7 +50,9 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
 
         int wins = 0;
         int losses = 0;
+        int totalVisionScore = 0;
         long timePlayedSeconds = 0;
+        double killParticipation = 0;
         for (Pair<Summoner, Match> summonerMatch : matches) {
             Summoner summoner = summonerMatch.getLeft();
             Match match = summonerMatch.getRight();
@@ -61,25 +60,40 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
                     .stream()
                     .filter(participant -> participant.getPuuid().equals(summoner.getPuuid()))
                     .findFirst()
-                    .orElse(null);
-            if (primaryParticipant != null) {
-                log.info("{}: {}", primaryParticipant.getSummonerName(), primaryParticipant.isWin());
-                // Found participant, let's aggregate
-                if (primaryParticipant.isWin()) {
-                    wins++;
-                } else {
-                    losses++;
-                }
-                timePlayedSeconds += primaryParticipant.getTimePlayed();
+                    .orElseThrow(() -> new IllegalStateException("The match linked with this participant should always contain the participant"));
+
+            log.info("{}: {}", primaryParticipant.getSummonerName(), primaryParticipant.isWin());
+            // Found participant, let's aggregate
+            if (primaryParticipant.isWin()) {
+                wins++;
+            } else {
+                losses++;
             }
+
+            // Inefficient to iterate twice but easier to read I suppose
+            int teamKills = match.getParticipants()
+                    .parallelStream()
+                    .filter(participant -> participant.getTeamId() == primaryParticipant.getTeamId())
+                    .mapToInt(Participant::getKills)
+                    .sum();
+
+            if (teamKills != 0) {
+                killParticipation += (double) (primaryParticipant.getKills() + primaryParticipant.getAssists()) / teamKills;
+            }
+            timePlayedSeconds += primaryParticipant.getTimePlayed();
+            totalVisionScore += primaryParticipant.getVisionScore();
         }
-        double winRate = 1.0D * wins / (wins + losses);
+        double avgVisionScore = 1.0D * totalVisionScore / matches.size();
+        double avgKillParticipation = killParticipation / matches.size();
+        double winRate = 1.0D * wins / matches.size();
 
         SummonerReport.SummonerReportBuilder<?, ?> builder = SummonerReport.builder();
         builder.wins(wins);
         builder.losses(losses);
         builder.winRate(winRate);
+        builder.avgKillParticipation(avgKillParticipation);
         builder.timePlayedSeconds(timePlayedSeconds);
+        builder.avgVisionScore(avgVisionScore);
 
         result.success(true);
         result.report(builder.build());

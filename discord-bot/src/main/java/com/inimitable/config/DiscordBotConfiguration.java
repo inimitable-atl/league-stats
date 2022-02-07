@@ -12,25 +12,26 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Optional;
 import java.util.UUID;
 
 @Configuration
 public class DiscordBotConfiguration {
+    private static final NumberFormat DEFAULT_PERCENTAGE_FORMAT = NumberFormat.getPercentInstance();
+    private static final NumberFormat DEFAULT_DOUBLE_FORMAT = new DecimalFormat("00.##");
     private final SummonerReportGenerator summonerReportGenerator;
 
     public DiscordBotConfiguration(SummonerReportGenerator summonerReportGenerator) {
         this.summonerReportGenerator = summonerReportGenerator;
-    }
-
-    @Bean
-    public DiscordProperties discordProperties() {
-        return new DiscordProperties();
     }
 
     @Bean
@@ -51,8 +52,6 @@ public class DiscordBotConfiguration {
                 Message message = event.getMessage();
                 String nickName = getNickName(event);
                 if (message.getContent().equalsIgnoreCase("!league-stats")) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("```");
                     try {
                         ReportResult<SummonerReport> reportResult = summonerReportGenerator.generateReport(
                                 ReportRequest.<SummonerReport>builder()
@@ -67,21 +66,24 @@ public class DiscordBotConfiguration {
 
                         SummonerReport report = reportResult.getReport();
 
-                        String SUMMONER = "HeavensVanguard";
-                        sb.append(SUMMONER)
-                                .append("'s win rate: ")
-                                .append(report.getWinRate());
+                        EmbedCreateSpec embedCreateSpec = EmbedCreateSpec.builder()
+                                .title("Report results")
+                                .description("Summoner report")
+                                .color(Color.GREEN)
+                                .addField("Win Rate", DEFAULT_PERCENTAGE_FORMAT.format(report.getWinRate()), false)
+                                .addField("Wins", String.valueOf(report.getWins()), false)
+                                .addField("Losses", String.valueOf(report.getLosses()), false)
+                                .addField("Average Kill Participation", DEFAULT_PERCENTAGE_FORMAT.format(report.getAvgKillParticipation()), false)
+                                .addField("Average Vision Score", DEFAULT_DOUBLE_FORMAT.format(report.getAvgVisionScore()), false)
+                                .build();
+
+                        return message.getChannel().flatMap(channel -> channel.createMessage(embedCreateSpec));
                     } catch (Exception e) {
                         e.printStackTrace();
-                        sb.append("An error has occurred. Please report to an admin.");
                     }
-
-//                    sb.append(Reporter.report(new String[]{"week", "1", nickName}));
-                    sb.append("```");
-                    message.getChannel();
                     return message
                             .getChannel()
-                            .flatMap(channel -> channel.createMessage(sb.toString()));
+                            .flatMap(channel -> channel.createMessage("An error has occurred. Please report to an admin."));
                 }
 
                 return Mono.empty();
@@ -96,11 +98,16 @@ public class DiscordBotConfiguration {
         return client;
     }
 
+    @Bean
+    public DiscordProperties discordProperties() {
+        return new DiscordProperties();
+    }
+
     private static String getNickName(MessageCreateEvent event) {
         Optional<Member> optional = event.getMember();
         if (optional.isPresent()) {
             var optionalNick = optional.get().getNickname();
-            if(optionalNick.isPresent()) {
+            if (optionalNick.isPresent()) {
                 return optionalNick.get();
             }
         }
