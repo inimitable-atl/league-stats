@@ -62,8 +62,6 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("The match linked with this participant should always contain the participant"));
 
-            log.info("{}: {}", primaryParticipant.getSummonerName(), primaryParticipant.isWin());
-            // Found participant, let's aggregate
             if (primaryParticipant.isWin()) {
                 wins++;
             } else {
