@@ -21,6 +21,8 @@ import reactor.core.publisher.Mono;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -51,13 +53,25 @@ public class DiscordBotConfiguration {
             Mono<Void> handlePingCommand = gateway.on(MessageCreateEvent.class, event -> {
                 Message message = event.getMessage();
                 String nickName = getNickName(event);
-                if (message.getContent().equalsIgnoreCase("!league-stats")) {
+                if (message.getContent().contains("!league-stats")) {
+                    String[] directives = message.getContent().split(" ");
+                    if (directives.length == 1 || !directives[1].trim().toLowerCase(Locale.ROOT).equals("report")) {
+                        return message
+                                .getChannel()
+                                .flatMap(channel -> channel.createMessage("You must include a command: e.g: 'league-stats report me"));
+                    }
+                    String reportContext;
+                    if (directives.length <= 2) {
+                        reportContext = nickName;
+                    } else {
+                        reportContext = directives[2].equalsIgnoreCase("me") ? nickName : directives[2];
+                    }
                     try {
                         ReportResult<SummonerReport> reportResult = summonerReportGenerator.generateReport(
                                 ReportRequest.<SummonerReport>builder()
                                         .reportContext(
                                                 ReportContext.builder()
-                                                        .requester(nickName)
+                                                        .requester(reportContext)
                                                         .summonerGroupId(UUID.randomUUID())
                                                         .build()
                                         )
@@ -68,8 +82,10 @@ public class DiscordBotConfiguration {
 
                         EmbedCreateSpec embedCreateSpec = EmbedCreateSpec.builder()
                                 .title("Report results")
-                                .description("Summoner report")
+                                .description(String.format("User report for %s.", report.getOwner()))
                                 .color(Color.GREEN)
+                                .addField("Summoners", Arrays.toString(report.getSummonerNames().toArray()), false)
+                                .addField("Duration", "1 Week", false)
                                 .addField("Win Rate", DEFAULT_PERCENTAGE_FORMAT.format(report.getWinRate()), false)
                                 .addField("Wins", String.valueOf(report.getWins()), false)
                                 .addField("Losses", String.valueOf(report.getLosses()), false)

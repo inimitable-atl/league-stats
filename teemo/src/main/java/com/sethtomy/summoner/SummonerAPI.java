@@ -21,7 +21,7 @@ public class SummonerAPI {
     public CompletableFuture<SummonerDTO> getSummonerByName(String summonerName) {
         String url = PlatformHost.NA1.getUrl() + BASEPATH + "/by-name/" + summonerName;
         HttpRequest request = riotClient.baseRequestBuilder
-                .uri(URI.create(url))
+                .uri(URI.create(url.replaceAll(" ", "%20")))
                 .build();
         return riotClient
                 .sendRequest(request)

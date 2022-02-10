@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.ExecutionException;
+
 @RestController
 public class SummonerReportController {
     private final SummonerReportGenerator generator;
@@ -18,7 +20,7 @@ public class SummonerReportController {
     }
 
     @GetMapping("/generate")
-    public ReportResult<SummonerReport> generate() {
+    public ReportResult<SummonerReport> generate() throws ExecutionException, InterruptedException {
         return generator.generateReport(
                 ReportRequest.<SummonerReport>builder()
                         .reportContext(ReportContext.builder().build())

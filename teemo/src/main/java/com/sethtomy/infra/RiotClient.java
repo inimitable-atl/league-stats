@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.RateLimiter;
 
+import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -16,9 +17,8 @@ public class RiotClient {
             .build();
     public static ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    private static RateLimiter secondRateLimiter = RateLimiter.create(0.833333);
+    private static final RateLimiter secondRateLimiter = RateLimiter.create(0.833333);
     public final HttpRequest.Builder baseRequestBuilder;
-    private final String apiKey;
 
     public RiotClient(String apiKey) {
         this.apiKey = apiKey;
@@ -35,8 +35,17 @@ public class RiotClient {
                     System.out.printf(
                             "[%s] Successfully sent request to %s", stringHttpResponse.statusCode(), request.uri()
                     );
+                    System.out.println();
                     return stringHttpResponse;
                 });
+    }
+
+    public HttpResponse<String> sendRequestSync(HttpRequest request) throws IOException, InterruptedException {
+        secondRateLimiter.acquire(1);
+        System.out.printf("Sending request to %s...\n", request.uri());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.printf("[%s] Successfully sent request to %s", response.statusCode(), request.uri());
+        return response;
     }
 
 }

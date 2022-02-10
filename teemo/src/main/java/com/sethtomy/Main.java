@@ -7,6 +7,7 @@ import com.sethtomy.match.dto.ParticipantDTO;
 import com.sethtomy.summoner.SummonerDTO;
 import com.sethtomy.summoner.SummonerAPI;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class Main {
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
+    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
         RiotClient riotClient = new RiotClient(System.getenv("RIOT_TOKEN"));
         SummonerAPI summonerAPI = new SummonerAPI(riotClient);
         MatchAPI matchAPI = new MatchAPI(riotClient);
@@ -25,8 +26,7 @@ public class Main {
                 .get();
 
         List<String> matchIds = matchAPI
-                .getMatchHistory(summonerDTO)
-                .get();
+                .getMatchHistory(summonerDTO);
 
         List<CompletableFuture<MatchDTO>> matchFutures = new ArrayList<>();
         for (String matchId : matchIds) {

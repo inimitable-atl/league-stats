@@ -1,19 +1,18 @@
 package com.inimitable.report.admin;
 
 import com.inimitable.mapper.SummonerMapper;
-import com.inimitable.model.Region;
 import com.inimitable.model.Summoner;
-import com.inimitable.model.SummonerGroup;
 import com.sethtomy.summoner.SummonerAPI;
-import com.sethtomy.summoner.SummonerDTO;
-import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 @Service
 public class MockedUserService implements UserService {
@@ -26,9 +25,31 @@ public class MockedUserService implements UserService {
     private final SummonerMapper summonerMapper;
 
     @Override
-    public Flux<Summoner> getSummonersInGroup(String username, UUID summonerGroupId) {
-            CompletableFuture<SummonerDTO> summonerDTO = summonerAPI.getSummonerByName("HeavensVanguard");
-            return Mono.fromFuture(summonerDTO)
-                            .flatMapMany(summonerDTO1 -> Mono.just(summonerMapper.fromDTO(summonerDTO1)));
+    public Flux<Summoner> getSummonersInGroup(
+            String username,
+            UUID summonerGroupId
+    ) throws ExecutionException, InterruptedException {
+            List<Summoner> summoners = new ArrayList<>();
+            // TODO: Make this async
+            for (String summonerName : getDefaults(username)) {
+                summoners.add(
+                        summonerMapper.fromDTO(
+                                summonerAPI.getSummonerByName(summonerName).get()
+                        )
+                );
+            }
+            return Flux.fromStream(summoners.stream());
+    }
+
+    private List<String> getDefaults(String username) {
+        List<String> summoners = new ArrayList<>();
+        switch (username) {
+            case "Seth" -> summoners = List.of("HeavensVanguard");
+            case "Andrew" -> summoners =  List.of("damadbagginj3w", "Creamy Vibes");
+            case "Champagne" -> summoners = List.of("RAINchampagne");
+            case "Jack" -> summoners = List.of("Mr BOjangles");
+            case "Nick" -> summoners = List.of("Squirts Bubbles");
+        }
+        return summoners;
     }
 }
