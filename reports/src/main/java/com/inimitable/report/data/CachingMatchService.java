@@ -40,7 +40,7 @@ public class CachingMatchService implements MatchService {
         CompletableFuture<SummonerDTO> summonerByName = summonerAPI.getSummonerByName(summoner.getName());
         try {
             SummonerDTO summonerDTO = summonerByName.get();
-            return api.getMatchHistory(summonerDTO).get();
+            return api.getMatchHistory(summonerDTO);
         } catch (Exception ex) {
             return null;
         }

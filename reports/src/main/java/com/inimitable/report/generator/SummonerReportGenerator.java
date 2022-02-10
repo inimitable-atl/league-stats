@@ -15,7 +15,10 @@ import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 @Component
@@ -31,14 +34,20 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
     }
 
     @Override
-    public ReportResult<SummonerReport> generateReport(ReportRequest<SummonerReport> request) {
+    public ReportResult<SummonerReport> generateReport(
+            ReportRequest<SummonerReport> request
+    ) throws ExecutionException, InterruptedException {
         ReportResult.ReportResultBuilder<SummonerReport> result = ReportResult.builder();
         ReportContext context = request.getReportContext();
 
         Flux<Summoner> summoners = userService.getSummonersInGroup(context.getRequester(), context.getSummonerGroupId());
+        List<String> summonerNames = new ArrayList<>();
         Collection<Pair<Summoner, Match>> matches =
                 summoners
-                        .map(summoner -> Pair.of(summoner, matchService.getMatchHistory(summoner)))
+                        .map(summoner -> {
+                            summonerNames.add(summoner.getName());
+                            return Pair.of(summoner, matchService.getMatchHistory(summoner));
+                        })
                         .flatMap((Function<Pair<Summoner, Collection<String>>, Publisher<Pair<Summoner, Match>>>) pair -> {
                                     Summoner summoner = pair.getKey();
                                     return matchService.get(pair.getValue())
@@ -55,6 +64,7 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
         double killParticipation = 0;
         for (Pair<Summoner, Match> summonerMatch : matches) {
             Summoner summoner = summonerMatch.getLeft();
+
             Match match = summonerMatch.getRight();
             Participant primaryParticipant = match.getParticipants()
                     .stream()
@@ -86,12 +96,14 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
         double winRate = 1.0D * wins / matches.size();
 
         SummonerReport.SummonerReportBuilder<?, ?> builder = SummonerReport.builder();
+        builder.owner(context.getRequester());
         builder.wins(wins);
         builder.losses(losses);
         builder.winRate(winRate);
         builder.avgKillParticipation(avgKillParticipation);
         builder.timePlayedSeconds(timePlayedSeconds);
         builder.avgVisionScore(avgVisionScore);
+        builder.summonerNames(summonerNames);
 
         result.success(true);
         result.report(builder.build());
