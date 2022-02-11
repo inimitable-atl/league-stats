@@ -1,5 +1,6 @@
 package com.inimitable.config;
 
+import com.inimitable.input.Directives;
 import com.inimitable.report.ReportRequest;
 import com.inimitable.report.ReportResult;
 import com.inimitable.report.filter.ReportContext;
@@ -54,38 +55,29 @@ public class DiscordBotConfiguration {
                 Message message = event.getMessage();
                 String nickName = getNickName(event);
                 if (message.getContent().contains("!league-stats")) {
-                    String[] directives = message.getContent().split(" ");
-                    if (directives.length == 1 || !directives[1].trim().toLowerCase(Locale.ROOT).equals("report")) {
-                        return message
-                                .getChannel()
-                                .flatMap(channel -> channel.createMessage("You must include a command: e.g: 'league-stats report me"));
-                    }
-                    String reportContext;
-                    if (directives.length <= 2) {
-                        reportContext = nickName;
-                    } else {
-                        reportContext = directives[2].equalsIgnoreCase("me") ? nickName : directives[2];
-                    }
+                    Directives directives = new Directives(message.getContent(), nickName);
                     try {
                         ReportResult<SummonerReport> reportResult = summonerReportGenerator.generateReport(
                                 ReportRequest.<SummonerReport>builder()
                                         .reportContext(
                                                 ReportContext.builder()
-                                                        .requester(reportContext)
+                                                        .requester(directives.getReportContext())
                                                         .summonerGroupId(UUID.randomUUID())
+                                                        .timeUnit(directives.getTimeUnit())
+                                                        .amount(directives.getAmount())
                                                         .build()
                                         )
                                         .build()
                         );
 
                         SummonerReport report = reportResult.getReport();
-
+                        String duration = directives.getAmount() + " " + directives.getTimeUnit().toString();
                         EmbedCreateSpec embedCreateSpec = EmbedCreateSpec.builder()
                                 .title("Report results")
                                 .description(String.format("User report for %s.", report.getOwner()))
                                 .color(Color.GREEN)
                                 .addField("Summoners", Arrays.toString(report.getSummonerNames().toArray()), false)
-                                .addField("Duration", "1 Week", false)
+                                .addField("Duration", duration, false)
                                 .addField("Win Rate", DEFAULT_PERCENTAGE_FORMAT.format(report.getWinRate()), false)
                                 .addField("Wins", String.valueOf(report.getWins()), false)
                                 .addField("Losses", String.valueOf(report.getLosses()), false)

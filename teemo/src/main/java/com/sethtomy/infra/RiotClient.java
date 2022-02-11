@@ -21,7 +21,6 @@ public class RiotClient {
     public final HttpRequest.Builder baseRequestBuilder;
 
     public RiotClient(String apiKey) {
-        this.apiKey = apiKey;
         baseRequestBuilder = HttpRequest.newBuilder()
                 .timeout(Duration.ofMinutes(2))
                 .header("X-Riot-Token", apiKey);

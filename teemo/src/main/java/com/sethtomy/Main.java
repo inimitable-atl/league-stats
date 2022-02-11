@@ -8,6 +8,7 @@ import com.sethtomy.summoner.SummonerDTO;
 import com.sethtomy.summoner.SummonerAPI;
 
 import java.io.IOException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +27,7 @@ public class Main {
                 .get();
 
         List<String> matchIds = matchAPI
-                .getMatchHistory(summonerDTO);
+                .getMatchHistory(summonerDTO, ChronoUnit.DAYS, 1);
 
         List<CompletableFuture<MatchDTO>> matchFutures = new ArrayList<>();
         for (String matchId : matchIds) {

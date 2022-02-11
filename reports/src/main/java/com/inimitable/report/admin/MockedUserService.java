@@ -45,10 +45,10 @@ public class MockedUserService implements UserService {
         List<String> summoners = new ArrayList<>();
         switch (username) {
             case "Seth" -> summoners = List.of("HeavensVanguard");
-            case "Andrew" -> summoners =  List.of("damadbagginj3w", "Creamy Vibes");
+            case "Andrew" -> summoners =  List.of("damadbagginj3w", "Creamy Vibes", "feedthenafkff15");
             case "Champagne" -> summoners = List.of("RAINchampagne");
             case "Jack" -> summoners = List.of("Mr BOjangles");
-            case "Nick" -> summoners = List.of("Squirts Bubbles");
+            case "Nick" -> summoners = List.of("Sommazz", "Sultry Vibes", "OctoFreshMom");
         }
         return summoners;
     }

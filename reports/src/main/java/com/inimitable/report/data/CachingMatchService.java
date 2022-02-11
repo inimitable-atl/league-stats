@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
@@ -35,12 +36,12 @@ public class CachingMatchService implements MatchService {
     }
 
     @Override
-    public Collection<String> getMatchHistory(Summoner summoner) {
+    public Collection<String> getMatchHistory(Summoner summoner, ChronoUnit timeUnit, int amount) {
         // TODO: SummonerService should look these up
         CompletableFuture<SummonerDTO> summonerByName = summonerAPI.getSummonerByName(summoner.getName());
         try {
             SummonerDTO summonerDTO = summonerByName.get();
-            return api.getMatchHistory(summonerDTO);
+            return api.getMatchHistory(summonerDTO, timeUnit, amount);
         } catch (Exception ex) {
             return null;
         }

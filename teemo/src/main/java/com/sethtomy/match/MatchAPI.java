@@ -31,10 +31,10 @@ public class MatchAPI {
         this.riotClient = riotClient;
     }
 
-    private Map<String, String> getMatchHistoryQueryParams() {
+    private Map<String, String> getMatchHistoryQueryParams(ChronoUnit timeUnit, int amount) {
         var now = Instant.now();
         // TODO: Currently using a hard-coded week, add support for user input of this
-        var then = now.minus(7, ChronoUnit.DAYS);
+        var then = now.minus(amount, timeUnit);
         var params = new HashMap<String, String>();
         params.put(QueryParams.COUNT, String.valueOf(DEFAULT_COUNT));
         params.put(QueryParams.START_INDEX, "0");
@@ -80,9 +80,13 @@ public class MatchAPI {
     /**
      * @return Array of Match Ids
      */
-    public List<String> getMatchHistory(SummonerDTO summonerDTO) throws IOException, InterruptedException {
+    public List<String> getMatchHistory(
+            SummonerDTO summonerDTO,
+            ChronoUnit timeUnit,
+            int amount
+    ) throws IOException, InterruptedException {
         String url = RegionHost.AMERICAS.getUrl() + BASEPATH + "/by-puuid/" + summonerDTO.puuid() + "/ids";
-        var params = getMatchHistoryQueryParams();
+        var params = getMatchHistoryQueryParams(timeUnit, amount);
         var matches = getMatchHistory(url, params);
         addAdditionalMatches(matches, url, params);
         return matches;

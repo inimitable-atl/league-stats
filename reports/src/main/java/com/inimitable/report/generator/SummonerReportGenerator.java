@@ -46,7 +46,10 @@ public class SummonerReportGenerator implements ReportGenerator<SummonerReport> 
                 summoners
                         .map(summoner -> {
                             summonerNames.add(summoner.getName());
-                            return Pair.of(summoner, matchService.getMatchHistory(summoner));
+                            return Pair.of(
+                                    summoner,
+                                    matchService.getMatchHistory(summoner, context.getTimeUnit(), context.getAmount())
+                            );
                         })
                         .flatMap((Function<Pair<Summoner, Collection<String>>, Publisher<Pair<Summoner, Match>>>) pair -> {
                                     Summoner summoner = pair.getKey();
